@@ -84,9 +84,6 @@ async def mainloop(session: ClientSession):
 app = Sanic('Server')
 app.static('/static', './static')
 
-@app.listener('after_server_start')
-async def listener(app, loop):
-    loop.create_task(mainloop(ClientSession()))
 
 @app.route('/')
 async def root(req):
@@ -105,6 +102,8 @@ async def apit(req, t):
     if not os.path.isfile(f'json/{t}.json'):
         return res.json({'message':'Not Found', 'status':404})
     return await res.file(f'json/{t}.json', mime_type='application/json')
+
+app.add_task(mainloop(ClientSession()))
 
 def main():
     app.run('0.0.0.0', 8000)
